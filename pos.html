@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JINNAH STATIONARY POS</title>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="card login-box">
+    <h2>JINNAH STATIONARY POS</h2>
+    <div class="msg err" id="loginMsg"></div>
+    <p><input type="text" id="loginUser" placeholder="Username" value="admin"></p>
+    <p><input type="password" id="loginPass" placeholder="Password"></p>
+    <button class="p" id="loginBtn" style="width:100%">Login</button>
+    <p style="font-size:12px;color:var(--mu);text-align:center;margin-top:12px">Default: admin / admin123</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <header>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1">
+        <h1 id="shopName">JINNAH STATIONARY POS</h1>
+        <div class="sub">Jinnah Park, Rahim Yar Khan • Rs. PKR</div>
+      </div>
+      <span id="userInfo" style="font-size:12px"></span>
+      <button id="langToggle" class="s" style="background:#e8b923;color:#000">اردو / EN</button>
+      <button id="logoutBtn" class="hidden">Logout</button>
+    </div>
+  </header>
+
+  <nav>
+    <button class="on" data-nav="pos">New Sale</button>
+    <button data-nav="dashboard">Dashboard</button>
+    <button data-nav="products">Products</button>
+    <button data-nav="sales">Sales</button>
+    <button data-nav="purchases">Purchases</button>
+    <button data-nav="customers">Customers</button>
+    <button data-nav="suppliers">Suppliers</button>
+    <button data-nav="expenses">Expenses</button>
+    <button data-nav="returns">Returns</button>
+    <button data-nav="register">Cash Register</button>
+    <button data-nav="reports">Reports</button>
+  </nav>
+
+  <main>
+    <div id="topMsg" class="msg hidden"></div>
+    <div id="loading" class="hidden"><span class="spin"></span> Loading...</div>
+
+    <!-- POS / NEW SALE -->
+    <section data-panel="pos">
+      <div class="row">
+        <div class="col" style="flex:2">
+          <div class="card">
+            <div class="row" style="margin-bottom:12px">
+              <input type="text" id="barcodeInput" class="barcode-input" placeholder="Scan barcode here + Enter" autofocus>
+              <input type="search" id="productSearch" placeholder="Search products...">
+            </div>
+            <div id="productList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-height:500px;overflow:auto;padding:4px"></div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card">
+            <h3>Cart</h3>
+            <table class="cart-table">
+              <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+              <tbody id="cartBody"></tbody>
+            </table>
+            <div class="row" style="margin-top:12px">
+              <div class="col"><label style="font-size:12px">Customer <select id="customerSelect"></select></label></div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div class="col"><label style="font-size:12px">Discount (Rs.) <input type="number" id="discountInput" min="0" value="0"></label></div>
+              <div class="col"><label style="font-size:12px">Paid (Rs.) <input type="number" id="paidInput" placeholder="auto"></label></div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div class="col"><label style="font-size:12px">Payment <select id="methodSelect"><option>Cash</option><option>Bank</option><option>Card</option></select></label></div>
+            </div>
+            <table style="margin-top:14px">
+              <tr><td>Subtotal</td><td style="text-align:right" id="subtotalLbl">Rs. 0</td></tr>
+              <tr><td>Tax</td><td style="text-align:right" id="taxLbl">Rs. 0</td></tr>
+              <tr><td><b>TOTAL</b></td><td style="text-align:right" class="total-row" id="grandTotal">Rs. 0</td></tr>
+            </table>
+            <div class="row" style="margin-top:14px">
+              <button class="p" id="completeBtn" style="flex:2">Complete Sale</button>
+              <button id="clearCartBtn" style="flex:1">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section data-panel="dashboard" class="hidden">
+      <h2>Dashboard</h2>
+      <div class="grid-stats" id="dashStats"></div>
+      <div class="card"><h3>Low Stock</h3><div id="dashLowStock"></div></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section data-panel="products" class="hidden">
+      <h2>Products</h2>
+      <div class="card" style="margin-bottom:12px">
+        <h3>Add / Edit Product</h3>
+        <form id="productForm" class="row">
+          <input type="hidden" id="pID">
+          <div class="col"><input type="text" id="pName" placeholder="Name *" required></div>
+          <div class="col"><input type="text" id="pBarcode" placeholder="Barcode"></div>
+          <div class="col"><input type="text" id="pCategory" placeholder="Category" value="General"></div>
+          <div class="col"><select id="pUnit"><option>pc</option><option>box</option><option>kg</option><option>liter</option></select></div>
+          <div class="col"><input type="number" id="pPP" placeholder="Purchase Price" step="0.01"></div>
+          <div class="col"><input type="number" id="pSP" placeholder="Selling Price *" step="0.01" required></div>
+          <div class="col"><input type="number" id="pStock" placeholder="Stock" step="0.01"></div>
+          <div class="col"><input type="number" id="pMin" placeholder="Min Stock" value="5"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Save Product</button> <button type="button" id="pCancel">Cancel</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <table id="productTable"><thead><tr><th>Name</th><th>Barcode</th><th>Category</th><th>PP</th><th>SP</th><th>Stock</th><th>Actions</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- SALES -->
+    <section data-panel="sales" class="hidden">
+      <h2>Sales History</h2>
+      <div class="row" style="margin-bottom:12px">
+        <input type="date" id="salesFrom" style="max-width:200px">
+        <input type="date" id="salesTo" style="max-width:200px">
+        <button class="s" id="salesLoadBtn">Load</button>
+      </div>
+      <div class="card"><table id="salesTable"><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th>Total</th><th>Paid</th><th>Due</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- PURCHASES -->
+    <section data-panel="purchases" class="hidden">
+      <h2>Purchases</h2>
+      <div class="card"><p>Purchase creation form: select supplier, add items with unit cost, save. Stock auto-updates.</p>
+        <div id="purchaseForm">
+          <p><select id="purchaseSupplier"></select></p>
+          <div id="purchaseItems"></div>
+          <button class="s" id="addPurchaseItemBtn">+ Add Item</button>
+          <p>Paid: <input type="number" id="purchasePaid" style="max-width:200px" value="0"></p>
+          <button class="p" id="savePurchaseBtn">Save Purchase</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOMERS -->
+    <section data-panel="customers" class="hidden">
+      <h2>Customers</h2>
+      <div class="card" style="margin-bottom:12px">
+        <h3>Add / Edit Customer</h3>
+        <form id="customerForm" class="row">
+          <input type="hidden" id="cID">
+          <div class="col"><input type="text" id="cName" placeholder="Name *" required></div>
+          <div class="col"><input type="text" id="cPhone" placeholder="Phone"></div>
+          <div class="col"><input type="text" id="cAddress" placeholder="Address"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Save Customer</button></div>
+        </form>
+      </div>
+      <div class="card"><table id="customerTable"><thead><tr><th>Name</th><th>Phone</th><th>Balance</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- SUPPLIERS -->
+    <section data-panel="suppliers" class="hidden">
+      <h2>Suppliers</h2>
+      <div class="card"><p>Supplier management: add name, phone, address. Payments recorded here.</p>
+        <form id="supplierForm" class="row">
+          <div class="col"><input type="text" id="sName" placeholder="Name *" required></div>
+          <div class="col"><input type="text" id="sPhone" placeholder="Phone"></div>
+          <div class="col"><input type="text" id="sAddress" placeholder="Address"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Save Supplier</button></div>
+        </form>
+      </div>
+      <div class="card"><table id="supplierTable"><thead><tr><th>Name</th><th>Phone</th><th>Balance</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- EXPENSES -->
+    <section data-panel="expenses" class="hidden">
+      <h2>Expenses</h2>
+      <div class="card" style="margin-bottom:12px">
+        <form id="expenseForm" class="row">
+          <div class="col"><input type="text" id="eCategory" placeholder="Category" value="General"></div>
+          <div class="col"><input type="number" id="eAmount" placeholder="Amount *" step="0.01" required></div>
+          <div class="col"><input type="text" id="eNotes" placeholder="Notes"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Add Expense</button></div>
+        </form>
+      </div>
+      <div class="card"><table id="expenseTable"><thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- RETURNS -->
+    <section data-panel="returns" class="hidden">
+      <h2>Sales Returns</h2>
+      <div class="card"><p>Enter invoice number and items to return. Stock is added back.</p>
+        <p><input type="text" id="returnSaleID" placeholder="Sale ID (paste from Sales tab)" style="max-width:400px"></p>
+        <button class="s" id="loadReturnSaleBtn">Load Sale</button>
+        <div id="returnItems"></div>
+        <p><input type="text" id="returnReason" placeholder="Reason" style="max-width:400px"></p>
+        <button class="p" id="saveReturnBtn">Process Return</button>
+      </div>
+    </section>
+
+    <!-- REGISTER -->
+    <section data-panel="register" class="hidden">
+      <h2>Cash Register</h2>
+      <div class="card">
+        <p><b>Opening cash:</b> <input type="number" id="openCash" step="0.01" style="max-width:200px" value="0"> <button class="s" id="openRegBtn">Open Register</button></p>
+        <p><b>Actual cash count at close:</b> <input type="number" id="closeCash" step="0.01" style="max-width:200px"> <button class="s" id="closeRegBtn">Close Register</button></p>
+        <div id="regResult"></div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section data-panel="reports" class="hidden">
+      <h2>Reports</h2>
+      <div class="card" style="margin-bottom:12px">
+        <div class="row">
+          <input type="date" id="rptFrom" style="max-width:200px">
+          <input type="date" id="rptTo" style="max-width:200px">
+          <button class="s" id="rptSalesBtn">Sales Summary</button>
+          <button class="s" id="rptProductBtn">Product-wise</button>
+          <button class="s" id="rptCsvSalesBtn">Export Sales CSV</button>
+          <button class="s" id="rptCsvProductsBtn">Export Products CSV</button>
+        </div>
+      </div>
+      <div class="card"><div id="rptResult"></div></div>
+    </section>
+
+  </main>
+  <footer>POS v1.0 • JINNAH STATIONARY & FRIENDS BOOK SHOP • Rs. PKR • Asia/Karachi</footer>
+</div>
+
+<script src="pos-config.js"></script>
+<script src="pos-api.js"></script>
+<script src="pos-receipt.js"></script>
+<script src="pos-ui.js"></script>
+<script src="pos-reports.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  // Show login or app
+  if (window.POS_API.isLoggedIn()) { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); window.POS_UI.init(); }
+
+  $('loginBtn').onclick = async () => {
+    try {
+      await window.POS_API.login($('loginUser').value, $('loginPass').value);
+      location.reload();
+    } catch (e) { $('loginMsg').textContent = e.message; }
+  };
+  $('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+
+  // Navigation
+  document.querySelectorAll('nav [data-nav]').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b === btn));
+      document.querySelectorAll('main [data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.nav));
+      if (window.POS_REPORTS && window.POS_REPORTS.onTab) window.POS_REPORTS.onTab(btn.dataset.nav);
+    };
+  });
+
+  // Products form
+  const pf = $('productForm');
+  if (pf) pf.onsubmit = async e => {
+    e.preventDefault();
+    const p = { ProductID: $('pID').value || undefined, Name: $('pName').value, Barcode: $('pBarcode').value,
+      Category: $('pCategory').value, Unit: $('pUnit').value,
+      PurchasePrice: Number($('pPP').value||0), SellingPrice: Number($('pSP').value||0),
+      Stock: Number($('pStock').value||0), MinStock: Number($('pMin').value||5) };
+    try { await window.POS_API.saveProduct(p); alert('Saved'); window.POS_UI.reload(); pf.reset(); $('pID').value=''; }
+    catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Customer form
+  const cf = $('customerForm');
+  if (cf) cf.onsubmit = async e => {
+    e.preventDefault();
+    try { await window.POS_API.saveCustomer({ CustomerID: $('cID').value || undefined, Name: $('cName').value, Phone: $('cPhone').value, Address: $('cAddress').value });
+      alert('Saved'); window.POS_UI.reload(); cf.reset(); $('cID').value='';
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Supplier form
+  const sf = $('supplierForm');
+  if (sf) sf.onsubmit = async e => {
+    e.preventDefault();
+    try { await window.POS_API.saveSupplier({ Name: $('sName').value, Phone: $('sPhone').value, Address: $('sAddress').value });
+      alert('Saved'); window.POS_UI.reload(); sf.reset();
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Expense form
+  const ef = $('expenseForm');
+  if (ef) ef.onsubmit = async e => {
+    e.preventDefault();
+    try { await window.POS_API.addExpense({ category: $('eCategory').value, amount: Number($('eAmount').value), notes: $('eNotes').value });
+      alert('Added'); window.POS_REPORTS.reloadExpenses(); ef.reset();
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Register
+  if ($('openRegBtn')) $('openRegBtn').onclick = async () => {
+    try { await window.POS_API.openRegister(Number($('openCash').value)); alert('Opened'); }
+    catch (err) { alert('Error: ' + err.message); }
+  };
+  if ($('closeRegBtn')) $('closeRegBtn').onclick = async () => {
+    try { const r = await window.POS_API.closeRegister(Number($('closeCash').value));
+      $('regResult').innerHTML = '<p>Expected: Rs. ' + r.Expected + '<br>Actual: Rs. ' + r.Actual + '<br>Diff: Rs. ' + r.Diff + '</p>';
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+})();
+</script>
+</body>
+</html>
