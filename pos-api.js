@@ -18,7 +18,8 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const json = await res.json();
         if (!json.ok) throw new Error(json.error || 'Request failed');
-        return json.data;
+        // FIX: login/logout etc. reply without a "data" wrapper; return the whole response then
+        return json.data !== undefined ? json.data : json;
       } catch (e) {
         lastErr = e;
         if (!opts.retrySafe) break;
@@ -33,6 +34,7 @@
     get user() { return USER; },
     async login(username, password) {
       const d = await call('login', { username, password });
+      if (!d || !d.token) throw new Error('Server did not return a token');
       TOKEN = d.token; USER = d.user;
       localStorage.setItem('pos_token', TOKEN);
       localStorage.setItem('pos_user', JSON.stringify(USER));
