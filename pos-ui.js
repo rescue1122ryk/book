@@ -51,18 +51,26 @@
 
   function renderProductList() {
     const el = $('productList'); if (!el) return;
-    el.innerHTML = products.map(p => `
-      <div class="card" style="padding:10px" data-pid="${p.ProductID}">
-        <div style="display:flex;justify-content:space-between;gap:8px">
-          <div><b>${esc(p.Name)}</b><div style="font-size:12px;color:var(--mu)">${esc(p.Category||'')} • ${esc(p.Unit||'pc')} • Stock: ${p.Stock}</div></div>
-          <div style="text-align:right"><b>${FMT(p.SellingPrice)}</b><div style="font-size:11px;color:var(--mu)">${esc(p.Barcode||'')}</div></div>
+    const isOwner = window.POS_API.user && window.POS_API.user.Role === 'owner';
+    el.innerHTML = products.map(p => {
+      const min = (p.MinStock === '' || p.MinStock == null) ? 5 : Number(p.MinStock);
+      const low = Number(p.Stock) <= min;
+      return `
+      <div class="pcard" data-pid="${p.ProductID}">
+        <div class="pcard-top">
+          <span class="pcard-cat">${esc(p.Category || '')}</span>
+          <span class="tag ${low ? 'warn' : 'ok'}">${T('stock')}: ${esc(p.Stock)}</span>
         </div>
-        <div style="margin-top:8px;display:flex;gap:6px">
-          <button class="p" data-add="${p.ProductID}" style="flex:1">${T('addToCart')}</button>
+        <div class="pcard-name">${esc(p.Name)}</div>
+        <div class="pcard-meta">${esc(p.Unit || 'pc')}${p.Barcode ? ' • ' + esc(p.Barcode) : ''}</div>
+        <div class="pcard-price">${FMT(p.SellingPrice)}</div>
+        <div class="pcard-actions">
+          <button class="p" data-add="${p.ProductID}">${T('addToCart')}</button>
           <button data-edit="${p.ProductID}">✎</button>
-          ${window.POS_API.user && window.POS_API.user.Role === 'owner' ? `<button data-del="${p.ProductID}" style="color:var(--bad)">✕</button>` : ''}
+          ${isOwner ? `<button class="danger" data-del="${p.ProductID}">✕</button>` : ''}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   function renderCustomersSelect() {

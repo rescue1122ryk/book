@@ -44,36 +44,49 @@
 
 <!-- MAIN APP -->
 <div id="app" class="hidden">
-  <header>
-    <div class="hdr-inner">
-      <div class="brand">
-        <div class="brand-mark">JS</div>
-        <div>
-          <h1 id="shopName">JINNAH STATIONARY POS</h1>
-          <div class="sub">Jinnah Park, Rahim Yar Khan • Rs. PKR</div>
-        </div>
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="sidebar">
+    <div class="side-brand">
+      <div class="brand-mark">JS</div>
+      <div>
+        <div class="side-title">JINNAH</div>
+        <div class="side-sub">STATIONARY POS</div>
       </div>
-      <div class="hdr-actions">
-        <span id="userInfo"></span>
+    </div>
+
+    <nav>
+      <button class="on" data-nav="pos"><span class="ic">🛒</span><span data-i18n="newSale">New Sale</span></button>
+      <button data-nav="dashboard"><span class="ic">📊</span><span data-i18n="dashboard">Dashboard</span></button>
+      <button data-nav="products"><span class="ic">📦</span><span data-i18n="products">Products</span></button>
+      <button data-nav="sales"><span class="ic">🧾</span><span data-i18n="sales">Sales</span></button>
+      <button data-nav="purchases"><span class="ic">🚚</span><span data-i18n="purchases">Purchases</span></button>
+      <button data-nav="customers"><span class="ic">👥</span><span data-i18n="customers">Customers</span></button>
+      <button data-nav="suppliers"><span class="ic">🏭</span><span data-i18n="suppliers">Suppliers</span></button>
+      <button data-nav="expenses"><span class="ic">💸</span><span data-i18n="expenses">Expenses</span></button>
+      <button data-nav="returns"><span class="ic">↩️</span><span data-i18n="returns">Returns</span></button>
+      <button data-nav="register"><span class="ic">💰</span><span data-i18n="register">Cash Register</span></button>
+      <button data-nav="reports"><span class="ic">📈</span><span data-i18n="reports">Reports</span></button>
+    </nav>
+
+    <div class="side-foot">
+      <span id="userInfo"></span>
+      <div class="side-actions">
         <button id="langToggle" class="btn-gold">اردو / EN</button>
         <button id="logoutBtn" class="hidden">Logout</button>
       </div>
     </div>
-  </header>
+  </aside>
 
-  <nav>
-    <button class="on" data-nav="pos">New Sale</button>
-    <button data-nav="dashboard">Dashboard</button>
-    <button data-nav="products">Products</button>
-    <button data-nav="sales">Sales</button>
-    <button data-nav="purchases">Purchases</button>
-    <button data-nav="customers">Customers</button>
-    <button data-nav="suppliers">Suppliers</button>
-    <button data-nav="expenses">Expenses</button>
-    <button data-nav="returns">Returns</button>
-    <button data-nav="register">Cash Register</button>
-    <button data-nav="reports">Reports</button>
-  </nav>
+  <div class="content">
+  <header class="topbar">
+    <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
+    <div class="top-title">
+      <h1 id="shopName">JINNAH STATIONARY POS</h1>
+      <div class="sub">Jinnah Park, Rahim Yar Khan • Rs. PKR</div>
+    </div>
+    <div class="top-date" id="todayLbl"></div>
+  </header>
 
   <main>
     <div id="topMsg" class="msg hidden"></div>
@@ -88,7 +101,7 @@
               <input type="text" id="barcodeInput" class="barcode-input" placeholder="Scan barcode here + Enter" autofocus>
               <input type="search" id="productSearch" placeholder="Search products...">
             </div>
-            <div id="productList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-height:500px;overflow:auto;padding:4px"></div>
+            <div id="productList" class="product-grid"></div>
           </div>
         </div>
         <div class="col pos-side">
@@ -261,6 +274,7 @@
 
   </main>
   <footer>POS v1.0 • JINNAH STATIONARY & FRIENDS BOOK SHOP • Rs. PKR • Asia/Karachi</footer>
+  </div><!-- /.content -->
 </div>
 
 <script src="pos-config.js"></script>
@@ -296,12 +310,19 @@
   };
   if (!$('loginScreen').classList.contains('hidden')) $('loginPass').focus();
 
+  // Sidebar drawer (mobile) + today's date
+  const closeNav = () => document.body.classList.remove('nav-open');
+  $('menuBtn').onclick = () => document.body.classList.toggle('nav-open');
+  $('scrim').onclick = closeNav;
+  try { $('todayLbl').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'short', year:'numeric' }); } catch (e) {}
+
   // Navigation
   document.querySelectorAll('nav [data-nav]').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b === btn));
       document.querySelectorAll('main [data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.nav));
       if (window.POS_REPORTS && window.POS_REPORTS.onTab) window.POS_REPORTS.onTab(btn.dataset.nav);
+      closeNav(); window.scrollTo(0, 0);
     };
   });
 
