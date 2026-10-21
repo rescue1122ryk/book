@@ -101,7 +101,7 @@
     const total = sub - disc + tax;
     $('subtotalLbl').textContent = FMT(sub);
     $('taxLbl').textContent = FMT(tax);
-    $('totalLbl').textContent = FMT(total);
+    if ($('totalLbl')) $('totalLbl').textContent = FMT(total);
     $('grandTotal').textContent = FMT(total);
     window._saleTotals = { sub, disc, tax, total };
   }

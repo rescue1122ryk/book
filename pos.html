@@ -3,34 +3,61 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#262c5b">
 <title>JINNAH STATIONARY POS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23e8b923'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' font-weight='800' text-anchor='middle' fill='%234a1020'%3EJS%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="pos.css">
 </head>
 <body>
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
-  <div class="card login-box">
-    <h2>JINNAH STATIONARY POS</h2>
-    <div class="msg err" id="loginMsg"></div>
-    <p><input type="text" id="loginUser" placeholder="Username" value="admin"></p>
-    <p><input type="password" id="loginPass" placeholder="Password"></p>
-    <button class="p" id="loginBtn" style="width:100%">Login</button>
-    <p style="font-size:12px;color:var(--mu);text-align:center;margin-top:12px">Default: admin / admin123</p>
+  <div class="login-shell">
+    <aside class="login-brand">
+      <div class="brand-mark lg">JS</div>
+      <h1>JINNAH STATIONARY</h1>
+      <p class="tagline">Point of Sale &amp; Inventory for Jinnah Park, Rahim Yar Khan</p>
+      <ul>
+        <li>Fast billing with barcode scanning</li>
+        <li>Stock, customers and supplier ledgers</li>
+        <li>Daily sales and cash register reports</li>
+      </ul>
+    </aside>
+    <div class="login-panel">
+      <div class="login-box">
+        <h2>Welcome back</h2>
+        <p class="lead">Sign in to continue to your POS.</p>
+        <div class="msg err" id="loginMsg"></div>
+        <label class="field"><span>Username</span>
+          <input type="text" id="loginUser" placeholder="Username" value="admin" autocomplete="username"></label>
+        <label class="field"><span>Password</span>
+          <div class="pass-wrap">
+            <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+            <button type="button" id="togglePass" tabindex="-1">Show</button>
+          </div></label>
+        <button class="p" id="loginBtn">Login</button>
+        <p class="hint">Default: admin / admin123</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- MAIN APP -->
 <div id="app" class="hidden">
   <header>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="flex:1">
-        <h1 id="shopName">JINNAH STATIONARY POS</h1>
-        <div class="sub">Jinnah Park, Rahim Yar Khan • Rs. PKR</div>
+    <div class="hdr-inner">
+      <div class="brand">
+        <div class="brand-mark">JS</div>
+        <div>
+          <h1 id="shopName">JINNAH STATIONARY POS</h1>
+          <div class="sub">Jinnah Park, Rahim Yar Khan • Rs. PKR</div>
+        </div>
       </div>
-      <span id="userInfo" style="font-size:12px"></span>
-      <button id="langToggle" class="s" style="background:#e8b923;color:#000">اردو / EN</button>
-      <button id="logoutBtn" class="hidden">Logout</button>
+      <div class="hdr-actions">
+        <span id="userInfo"></span>
+        <button id="langToggle" class="btn-gold">اردو / EN</button>
+        <button id="logoutBtn" class="hidden">Logout</button>
+      </div>
     </div>
   </header>
 
@@ -55,7 +82,7 @@
     <!-- POS / NEW SALE -->
     <section data-panel="pos">
       <div class="row">
-        <div class="col" style="flex:2">
+        <div class="col pos-main">
           <div class="card">
             <div class="row" style="margin-bottom:12px">
               <input type="text" id="barcodeInput" class="barcode-input" placeholder="Scan barcode here + Enter" autofocus>
@@ -64,7 +91,7 @@
             <div id="productList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;max-height:500px;overflow:auto;padding:4px"></div>
           </div>
         </div>
-        <div class="col">
+        <div class="col pos-side">
           <div class="card">
             <h3>Cart</h3>
             <table class="cart-table">
@@ -249,12 +276,25 @@
   if (window.POS_API.isLoggedIn()) { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); window.POS_UI.init(); }
 
   $('loginBtn').onclick = async () => {
+    const btn = $('loginBtn');
+    $('loginMsg').textContent = '';
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Signing in...';
     try {
       await window.POS_API.login($('loginUser').value, $('loginPass').value);
       location.reload();
-    } catch (e) { $('loginMsg').textContent = e.message; }
+    } catch (e) {
+      $('loginMsg').textContent = e.message;
+      btn.disabled = false; btn.textContent = 'Login';
+    }
   };
   $('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+  $('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginPass').focus(); });
+  $('togglePass').onclick = () => {
+    const show = $('loginPass').type === 'password';
+    $('loginPass').type = show ? 'text' : 'password';
+    $('togglePass').textContent = show ? 'Hide' : 'Show';
+  };
+  if (!$('loginScreen').classList.contains('hidden')) $('loginPass').focus();
 
   // Navigation
   document.querySelectorAll('nav [data-nav]').forEach(btn => {
