@@ -1,0 +1,60 @@
+/* Free tools on the login page (CNIC Print + Passport Photo). Everything is scoped, so pos.css is not touched. */
+
+/* ---- buttons inside the login box ---- */
+.tools-sep { display: flex; align-items: center; gap: 10px; margin: 18px 0 10px; font-size: 12px; color: #7b819c; text-transform: uppercase; letter-spacing: .06em; }
+.tools-sep::before, .tools-sep::after { content: ""; flex: 1; height: 1px; background: #d9dce8; }
+.tool-links { display: grid; gap: 8px; }
+#loginScreen .tool-links .tool-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; border: 1px solid #e8b923; border-radius: 10px; background: #fff7dd; color: #4a1020; font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+#loginScreen .tool-links .tool-btn:hover { background: #ffefb8; }
+#loginScreen .tool-links .tool-btn small { display: block; font-weight: 400; font-size: 12px; opacity: .75; }
+
+/* ---- full-screen tools page ---- */
+#toolsScreen { --bd: #d7dbe8; --card: #ffffff; --tx: #1d2240; --mu: #667089; --bad: #c0262d; --navy: #262c5b; --gold: #e8b923;
+  position: fixed; inset: 0; z-index: 9999; overflow: auto; background: #eef0f7; color: var(--tx); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+#toolsScreen[hidden] { display: none; }
+#toolsScreen * { box-sizing: border-box; }
+#toolsScreen .tools-top { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 16px; background: var(--navy); color: #fff; }
+#toolsScreen .tools-top h1 { margin: 0; font-size: 16px; flex: 1; min-width: 160px; }
+#toolsScreen .tools-top button { border: 0; border-radius: 9px; padding: 8px 14px; font: inherit; cursor: pointer; background: rgba(255,255,255,.14); color: #fff; }
+#toolsScreen .tools-top button.on { background: var(--gold); color: #4a1020; font-weight: 700; }
+#toolsScreen .tools-main { max-width: 1180px; margin: 0 auto; padding: 16px; }
+#toolsScreen .drop { display: block; border: 2px dashed #9aa2c8; border-radius: 14px; background: #fff; padding: 20px 16px; text-align: center; cursor: pointer; }
+#toolsScreen .drop:hover, #toolsScreen .drop.over { border-color: var(--navy); background: #f6f7fd; }
+#toolsScreen .drop b { display: block; font-size: 16px; margin-bottom: 4px; }
+#toolsScreen .drop span { color: var(--mu); font-size: 13px; }
+
+/* ---- shared widgets (also used by report-cnic.js) ---- */
+#toolsScreen .card { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; padding: 14px; }
+#toolsScreen .card h4 { margin: 0 0 10px; font-size: 15px; }
+#toolsScreen .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 10px 0; }
+#toolsScreen .mu { color: var(--mu); }
+#toolsScreen .note { background: #fff7dd; border: 1px solid #f0dc8c; border-radius: 9px; padding: 8px 10px; font-size: 13px; margin: 8px 0; }
+#toolsScreen button { font: inherit; padding: 8px 14px; border: 1px solid var(--bd); border-radius: 9px; background: #fff; color: var(--tx); cursor: pointer; }
+#toolsScreen button:hover:not(:disabled) { border-color: var(--navy); }
+#toolsScreen button.p { background: var(--navy); border-color: var(--navy); color: #fff; }
+#toolsScreen button:disabled { opacity: .45; cursor: not-allowed; }
+#toolsScreen select, #toolsScreen input[type=number], #toolsScreen input[type=search], #toolsScreen input[type=text] { font: inherit; padding: 7px 9px; border: 1px solid var(--bd); border-radius: 9px; background: #fff; color: var(--tx); max-width: 100%; }
+#toolsScreen label { font-size: 13px; }
+#toolsScreen .ownpanel[hidden] { display: none; }
+
+/* ---- passport photo panel ---- */
+#toolsScreen .phgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; align-items: start; }
+#toolsScreen .ph-slot { display: flex; justify-content: center; background: repeating-conic-gradient(#e6e8f2 0 25%, #f6f7fb 0 50%) 0 0 / 16px 16px; border-radius: 10px; padding: 10px; }
+#toolsScreen .ph-photo { width: 240px; max-width: 100%; height: auto; display: block; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.25); cursor: grab; }
+#toolsScreen .ph-photo.drag { cursor: grabbing; }
+#toolsScreen .ph-rng, #toolsScreen .ph-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+#toolsScreen .ph-rng input[type=range], #toolsScreen .ph-row input[type=range] { flex: 1; }
+#toolsScreen .ph-row select, #toolsScreen .ph-row input[type=search] { flex: 1; min-width: 0; }
+#toolsScreen .ph-sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 6px; }
+#toolsScreen .ph-sw button { display: flex; align-items: center; gap: 8px; padding: 7px 9px; font-size: 13px; text-align: left; }
+#toolsScreen .ph-sw button.on { border-color: var(--navy); box-shadow: 0 0 0 2px var(--navy) inset; font-weight: 700; }
+#toolsScreen .ph-sw .dot { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,.25); }
+#toolsScreen .ph-sw .dot.orig { background: linear-gradient(135deg, #fff 45%, #e04a4a 45% 55%, #fff 55%); }
+#toolsScreen .ph-form { display: grid; gap: 8px; }
+#toolsScreen .ph-form label { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#toolsScreen .ph-form select, #toolsScreen .ph-form input[type=number] { width: 58%; }
+#toolsScreen .ph-chk { justify-content: flex-start !important; }
+#toolsScreen #phCustomSize { display: grid; gap: 8px; }
+#toolsScreen .ph-sheet { display: block; width: 260px; max-width: 100%; height: auto; margin: 12px auto 6px; border: 1px solid var(--bd); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+
+@media (max-width: 600px) { #toolsScreen .tools-main { padding: 10px; } }

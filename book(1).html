@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#262c5b">
+<title>JINNAH STATIONARY POS</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23e8b923'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' font-weight='800' text-anchor='middle' fill='%234a1020'%3EJS%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="tools.css">
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-shell">
+    <aside class="login-brand">
+      <div class="brand-mark lg">JS</div>
+      <h1>JINNAH STATIONARY</h1>
+      <p class="tagline">Point of Sale &amp; Inventory for Jinnah Park, Rahim Yar Khan</p>
+      <ul>
+        <li>Fast billing with barcode scanning</li>
+        <li>Stock, customers and supplier ledgers</li>
+        <li>Daily sales and cash register reports</li>
+      </ul>
+    </aside>
+    <div class="login-panel">
+      <div class="login-box">
+        <h2>Welcome back</h2>
+        <p class="lead">Sign in to continue to your POS.</p>
+        <div class="msg err" id="loginMsg"></div>
+        <label class="field"><span>Username</span>
+          <input type="text" id="loginUser" placeholder="Username" value="admin" autocomplete="username"></label>
+        <label class="field"><span>Password</span>
+          <div class="pass-wrap">
+            <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+            <button type="button" id="togglePass" tabindex="-1">Show</button>
+          </div></label>
+        <button class="p" id="loginBtn">Login</button>
+        <p class="hint">Default: admin / admin123</p>
+
+        <div class="tools-sep"><span>Free tools &middot; no login needed</span></div>
+        <div class="tool-links">
+          <button type="button" class="tool-btn" data-open-tool="cnic"><span>🪪</span><span>CNIC Print (A4)<small>Front + back, 4 copies, Word / print</small></span></button>
+          <button type="button" class="tool-btn" data-open-tool="photo"><span>📷</span><span>Passport Photo (6 copies)<small>3.5 x 4.5 cm, change background, 4x6 sheet</small></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FREE TOOLS (opens from the login page, no login needed) -->
+<div id="toolsScreen" hidden>
+  <header class="tools-top">
+    <button type="button" id="toolsBack">&larr; Back to login</button>
+    <h1>Free Tools</h1>
+    <button type="button" data-tool="cnic">CNIC Print A4</button>
+    <button type="button" data-tool="photo">Passport Photo</button>
+  </header>
+  <div class="tools-main">
+    <label class="drop" id="toolDrop">
+      <input type="file" id="toolFile" accept="image/*" multiple hidden>
+      <b id="dropTitle"></b><span id="dropHint"></span>
+    </label>
+    <div id="result"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="sidebar">
+    <div class="side-brand">
+      <div class="brand-mark">JS</div>
+      <div>
+        <div class="side-title">JINNAH</div>
+        <div class="side-sub">STATIONARY POS</div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="on" data-nav="pos"><span class="ic">🛒</span><span data-i18n="newSale">New Sale</span></button>
+      <button data-nav="dashboard"><span class="ic">📊</span><span data-i18n="dashboard">Dashboard</span></button>
+      <button data-nav="products"><span class="ic">📦</span><span data-i18n="products">Products</span></button>
+      <button data-nav="sales"><span class="ic">🧾</span><span data-i18n="sales">Sales</span></button>
+      <button data-nav="purchases"><span class="ic">🚚</span><span data-i18n="purchases">Purchases</span></button>
+      <button data-nav="customers"><span class="ic">👥</span><span data-i18n="customers">Customers</span></button>
+      <button data-nav="suppliers"><span class="ic">🏭</span><span data-i18n="suppliers">Suppliers</span></button>
+      <button data-nav="expenses"><span class="ic">💸</span><span data-i18n="expenses">Expenses</span></button>
+      <button data-nav="returns"><span class="ic">↩️</span><span data-i18n="returns">Returns</span></button>
+      <button data-nav="register"><span class="ic">💰</span><span data-i18n="register">Cash Register</span></button>
+      <button data-nav="reports"><span class="ic">📈</span><span data-i18n="reports">Reports</span></button>
+    </nav>
+
+    <div class="side-foot">
+      <span id="userInfo"></span>
+      <div class="side-actions">
+        <button id="langToggle" class="btn-gold">اردو / EN</button>
+        <button id="logoutBtn" class="hidden">Logout</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content">
+  <header class="topbar">
+    <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
+    <div class="top-title">
+      <h1 id="shopName">JINNAH STATIONARY POS</h1>
+      <div class="sub">Jinnah Park, Rahim Yar Khan • Rs. PKR</div>
+    </div>
+    <div class="top-date" id="todayLbl"></div>
+  </header>
+
+  <main>
+    <div id="topMsg" class="msg hidden"></div>
+    <div id="loading" class="hidden"><span class="spin"></span> Loading...</div>
+
+    <!-- POS / NEW SALE -->
+    <section data-panel="pos">
+      <div class="row">
+        <div class="col pos-main">
+          <div class="card">
+            <div class="row" style="margin-bottom:12px">
+              <input type="text" id="barcodeInput" class="barcode-input" placeholder="Scan barcode here + Enter" autofocus>
+              <input type="search" id="productSearch" placeholder="Search products...">
+            </div>
+            <div id="productList" class="product-grid"></div>
+          </div>
+        </div>
+        <div class="col pos-side">
+          <div class="card">
+            <h3>Cart</h3>
+            <table class="cart-table">
+              <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead>
+              <tbody id="cartBody"></tbody>
+            </table>
+            <div class="row" style="margin-top:12px">
+              <div class="col"><label style="font-size:12px">Customer <select id="customerSelect"></select></label></div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div class="col"><label style="font-size:12px">Discount (Rs.) <input type="number" id="discountInput" min="0" value="0"></label></div>
+              <div class="col"><label style="font-size:12px">Paid (Rs.) <input type="number" id="paidInput" placeholder="auto"></label></div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div class="col"><label style="font-size:12px">Payment <select id="methodSelect"><option>Cash</option><option>Bank</option><option>Card</option></select></label></div>
+            </div>
+            <table style="margin-top:14px">
+              <tr><td>Subtotal</td><td style="text-align:right" id="subtotalLbl">Rs. 0</td></tr>
+              <tr><td>Tax</td><td style="text-align:right" id="taxLbl">Rs. 0</td></tr>
+              <tr><td><b>TOTAL</b></td><td style="text-align:right" class="total-row" id="grandTotal">Rs. 0</td></tr>
+            </table>
+            <div class="row" style="margin-top:14px">
+              <button class="p" id="completeBtn" style="flex:2">Complete Sale</button>
+              <button id="clearCartBtn" style="flex:1">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section data-panel="dashboard" class="hidden">
+      <h2>Dashboard</h2>
+      <div class="grid-stats" id="dashStats"></div>
+      <div class="card"><h3>Low Stock</h3><div id="dashLowStock"></div></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section data-panel="products" class="hidden">
+      <h2>Products</h2>
+      <div class="card" style="margin-bottom:12px">
+        <h3>Add / Edit Product</h3>
+        <form id="productForm" class="row">
+          <input type="hidden" id="pID">
+          <div class="col"><input type="text" id="pName" placeholder="Name *" required></div>
+          <div class="col"><input type="text" id="pBarcode" placeholder="Barcode"></div>
+          <div class="col"><input type="text" id="pCategory" placeholder="Category" value="General"></div>
+          <div class="col"><select id="pUnit"><option>pc</option><option>box</option><option>kg</option><option>liter</option></select></div>
+          <div class="col"><input type="number" id="pPP" placeholder="Purchase Price" step="0.01"></div>
+          <div class="col"><input type="number" id="pSP" placeholder="Selling Price *" step="0.01" required></div>
+          <div class="col"><input type="number" id="pStock" placeholder="Stock" step="0.01"></div>
+          <div class="col"><input type="number" id="pMin" placeholder="Min Stock" value="5"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Save Product</button> <button type="button" id="pCancel">Cancel</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <table id="productTable"><thead><tr><th>Name</th><th>Barcode</th><th>Category</th><th>PP</th><th>SP</th><th>Stock</th><th>Actions</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <!-- SALES -->
+    <section data-panel="sales" class="hidden">
+      <h2>Sales History</h2>
+      <div class="row" style="margin-bottom:12px">
+        <input type="date" id="salesFrom" style="max-width:200px">
+        <input type="date" id="salesTo" style="max-width:200px">
+        <button class="s" id="salesLoadBtn">Load</button>
+      </div>
+      <div class="card"><table id="salesTable"><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th>Total</th><th>Paid</th><th>Due</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- PURCHASES -->
+    <section data-panel="purchases" class="hidden">
+      <h2>Purchases</h2>
+      <div class="card"><p>Purchase creation form: select supplier, add items with unit cost, save. Stock auto-updates.</p>
+        <div id="purchaseForm">
+          <p><select id="purchaseSupplier"></select></p>
+          <div id="purchaseItems"></div>
+          <button class="s" id="addPurchaseItemBtn">+ Add Item</button>
+          <p>Paid: <input type="number" id="purchasePaid" style="max-width:200px" value="0"></p>
+          <button class="p" id="savePurchaseBtn">Save Purchase</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOMERS -->
+    <section data-panel="customers" class="hidden">
+      <h2>Customers</h2>
+      <div class="card" style="margin-bottom:12px">
+        <h3>Add / Edit Customer</h3>
+        <form id="customerForm" class="row">
+          <input type="hidden" id="cID">
+          <div class="col"><input type="text" id="cName" placeholder="Name *" required></div>
+          <div class="col"><input type="text" id="cPhone" placeholder="Phone"></div>
+          <div class="col"><input type="text" id="cAddress" placeholder="Address"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Save Customer</button></div>
+        </form>
+      </div>
+      <div class="card"><table id="customerTable"><thead><tr><th>Name</th><th>Phone</th><th>Balance</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- SUPPLIERS -->
+    <section data-panel="suppliers" class="hidden">
+      <h2>Suppliers</h2>
+      <div class="card"><p>Supplier management: add name, phone, address. Payments recorded here.</p>
+        <form id="supplierForm" class="row">
+          <div class="col"><input type="text" id="sName" placeholder="Name *" required></div>
+          <div class="col"><input type="text" id="sPhone" placeholder="Phone"></div>
+          <div class="col"><input type="text" id="sAddress" placeholder="Address"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Save Supplier</button></div>
+        </form>
+      </div>
+      <div class="card"><table id="supplierTable"><thead><tr><th>Name</th><th>Phone</th><th>Balance</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- EXPENSES -->
+    <section data-panel="expenses" class="hidden">
+      <h2>Expenses</h2>
+      <div class="card" style="margin-bottom:12px">
+        <form id="expenseForm" class="row">
+          <div class="col"><input type="text" id="eCategory" placeholder="Category" value="General"></div>
+          <div class="col"><input type="number" id="eAmount" placeholder="Amount *" step="0.01" required></div>
+          <div class="col"><input type="text" id="eNotes" placeholder="Notes"></div>
+          <div style="flex-basis:100%"><button class="p" type="submit">Add Expense</button></div>
+        </form>
+      </div>
+      <div class="card"><table id="expenseTable"><thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- RETURNS -->
+    <section data-panel="returns" class="hidden">
+      <h2>Sales Returns</h2>
+      <div class="card"><p>Enter invoice number and items to return. Stock is added back.</p>
+        <p><input type="text" id="returnSaleID" placeholder="Sale ID (paste from Sales tab)" style="max-width:400px"></p>
+        <button class="s" id="loadReturnSaleBtn">Load Sale</button>
+        <div id="returnItems"></div>
+        <p><input type="text" id="returnReason" placeholder="Reason" style="max-width:400px"></p>
+        <button class="p" id="saveReturnBtn">Process Return</button>
+      </div>
+    </section>
+
+    <!-- REGISTER -->
+    <section data-panel="register" class="hidden">
+      <h2>Cash Register</h2>
+      <div class="card">
+        <p><b>Opening cash:</b> <input type="number" id="openCash" step="0.01" style="max-width:200px" value="0"> <button class="s" id="openRegBtn">Open Register</button></p>
+        <p><b>Actual cash count at close:</b> <input type="number" id="closeCash" step="0.01" style="max-width:200px"> <button class="s" id="closeRegBtn">Close Register</button></p>
+        <div id="regResult"></div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section data-panel="reports" class="hidden">
+      <h2>Reports</h2>
+      <div class="card" style="margin-bottom:12px">
+        <div class="row">
+          <input type="date" id="rptFrom" style="max-width:200px">
+          <input type="date" id="rptTo" style="max-width:200px">
+          <button class="s" id="rptSalesBtn">Sales Summary</button>
+          <button class="s" id="rptProductBtn">Product-wise</button>
+          <button class="s" id="rptCsvSalesBtn">Export Sales CSV</button>
+          <button class="s" id="rptCsvProductsBtn">Export Products CSV</button>
+        </div>
+      </div>
+      <div class="card"><div id="rptResult"></div></div>
+    </section>
+
+  </main>
+  <footer>POS v1.0 • JINNAH STATIONARY & FRIENDS BOOK SHOP • Rs. PKR • Asia/Karachi</footer>
+  </div><!-- /.content -->
+</div>
+
+<!-- Free tools (loaded first so they keep working even if the POS scripts below fail) -->
+<script src="jszip.min.js"></script>
+<script>window.JSZip || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"><\/script>');</script>
+<script src="report-cnic.js"></script>
+<script src="report-photo.js"></script>
+<script src="login-tools.js"></script>
+
+<script src="pos-config.js"></script>
+<script src="pos-api.js"></script>
+<script src="pos-receipt.js"></script>
+<script src="pos-ui.js"></script>
+<script src="pos-reports.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  // Show login or app
+  if (window.POS_API.isLoggedIn()) { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); window.POS_UI.init(); }
+
+  $('loginBtn').onclick = async () => {
+    const btn = $('loginBtn');
+    $('loginMsg').textContent = '';
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Signing in...';
+    try {
+      await window.POS_API.login($('loginUser').value, $('loginPass').value);
+      location.reload();
+    } catch (e) {
+      $('loginMsg').textContent = e.message;
+      btn.disabled = false; btn.textContent = 'Login';
+    }
+  };
+  $('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+  $('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginPass').focus(); });
+  $('togglePass').onclick = () => {
+    const show = $('loginPass').type === 'password';
+    $('loginPass').type = show ? 'text' : 'password';
+    $('togglePass').textContent = show ? 'Hide' : 'Show';
+  };
+  if (!$('loginScreen').classList.contains('hidden')) $('loginPass').focus();
+
+  // Sidebar drawer (mobile) + today's date
+  const closeNav = () => document.body.classList.remove('nav-open');
+  $('menuBtn').onclick = () => document.body.classList.toggle('nav-open');
+  $('scrim').onclick = closeNav;
+  try { $('todayLbl').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'short', year:'numeric' }); } catch (e) {}
+
+  // Navigation
+  document.querySelectorAll('nav [data-nav]').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b === btn));
+      document.querySelectorAll('main [data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== btn.dataset.nav));
+      if (window.POS_REPORTS && window.POS_REPORTS.onTab) window.POS_REPORTS.onTab(btn.dataset.nav);
+      closeNav(); window.scrollTo(0, 0);
+    };
+  });
+
+  // Products form
+  const pf = $('productForm');
+  if (pf) pf.onsubmit = async e => {
+    e.preventDefault();
+    const p = { ProductID: $('pID').value || undefined, Name: $('pName').value, Barcode: $('pBarcode').value,
+      Category: $('pCategory').value, Unit: $('pUnit').value,
+      PurchasePrice: Number($('pPP').value||0), SellingPrice: Number($('pSP').value||0),
+      Stock: Number($('pStock').value||0), MinStock: Number($('pMin').value||5) };
+    try { await window.POS_API.saveProduct(p); alert('Saved'); window.POS_UI.reload(); pf.reset(); $('pID').value=''; }
+    catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Customer form
+  const cf = $('customerForm');
+  if (cf) cf.onsubmit = async e => {
+    e.preventDefault();
+    try { await window.POS_API.saveCustomer({ CustomerID: $('cID').value || undefined, Name: $('cName').value, Phone: $('cPhone').value, Address: $('cAddress').value });
+      alert('Saved'); window.POS_UI.reload(); cf.reset(); $('cID').value='';
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Supplier form
+  const sf = $('supplierForm');
+  if (sf) sf.onsubmit = async e => {
+    e.preventDefault();
+    try { await window.POS_API.saveSupplier({ Name: $('sName').value, Phone: $('sPhone').value, Address: $('sAddress').value });
+      alert('Saved'); window.POS_UI.reload(); sf.reset();
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Expense form
+  const ef = $('expenseForm');
+  if (ef) ef.onsubmit = async e => {
+    e.preventDefault();
+    try { await window.POS_API.addExpense({ category: $('eCategory').value, amount: Number($('eAmount').value), notes: $('eNotes').value });
+      alert('Added'); window.POS_REPORTS.reloadExpenses(); ef.reset();
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+
+  // Register
+  if ($('openRegBtn')) $('openRegBtn').onclick = async () => {
+    try { await window.POS_API.openRegister(Number($('openCash').value)); alert('Opened'); }
+    catch (err) { alert('Error: ' + err.message); }
+  };
+  if ($('closeRegBtn')) $('closeRegBtn').onclick = async () => {
+    try { const r = await window.POS_API.closeRegister(Number($('closeCash').value));
+      $('regResult').innerHTML = '<p>Expected: Rs. ' + r.Expected + '<br>Actual: Rs. ' + r.Actual + '<br>Diff: Rs. ' + r.Diff + '</p>';
+    } catch (err) { alert('Error: ' + err.message); }
+  };
+})();
+</script>
+</body>
+</html>
